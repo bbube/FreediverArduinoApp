@@ -14,7 +14,7 @@ String date;
 
 int diveID = 1;
 
-//writes the value of variable sessionID (+ parameter if given) into the sessionID-file
+//writes the value of variable date into the date-file
 void setDateToFile(String d) {
 
   File file = SD.open(datePath, FILE_WRITE);
@@ -24,8 +24,8 @@ void setDateToFile(String d) {
   }
 }
 
-//returns the sessionID from the sessionID-file
-//returns -1 if failed to open the file
+//returns the date from the date-file
+//returns empty string if failed to open the file
 String getDateFromFile() {
 
   File file = SD.open(datePath);
@@ -50,7 +50,7 @@ int getDiveID() {
   return -1;
 }
 
-//writes the value of variable sessionID into the divenID-file
+//writes the value of variable diveID into the diveID-file
 void setDiveID() {
   if(SD.exists(divePath)) {
     SD.remove(divePath);
@@ -68,11 +68,14 @@ void setDate() {
 }
 
 //-------META files--------
-//Check if the meta-Files "sessionID" and "diveID" exist. IF yes their current
-//values are saved in sessionID and diveID. IF not they are created.
+//sets the date; checks if the meta-files "dive.log" and "date.log"
+//exist and creates them if not; if yes the variables "diveID" and
+//"date" are set
 void initializeMetaData() {
 
+  //just to imitate a date, has to be removed
   while(millis() < 3501)
+
   setDate();
   String oldDate;
   if (SD.exists(datePath)) {
@@ -86,7 +89,6 @@ void initializeMetaData() {
   } else {
     setDateToFile(date);
   }
-  Serial.println("date initialized (" + date + ")");
 
   if(SD.exists(divePath)) {
     if(sameSession) {
@@ -96,6 +98,10 @@ void initializeMetaData() {
   }
   setDiveID();
 
+  Serial.println("meta-files initialized");
+  Serial.println("date         -> " + date);
+  Serial.println("dive         -> " + diveID);
+  Serial.println("same session -> " + sameSession);
 }
 
 //creates a directory with given parameter as name
