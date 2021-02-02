@@ -1,0 +1,9 @@
+C:/Users/Standart/Documents/Studium/Informatikprojekt/Arduino/Software/FreediverAppArduino/DiveComputer/build/CMakeFiles/NightlyMemoryCheck.dir
+C:/Users/Standart/Documents/Studium/Informatikprojekt/Arduino/Software/FreediverAppArduino/DiveComputer/build/CMakeFiles/Experimental.dir
+C:/Users/Standart/Documents/Studium/Informatikprojekt/Arduino/Software/FreediverAppArduino/DiveComputer/build/CMakeFiles/DiveComputer_Debug.dir
+C:/Users/Standart/Documents/Studium/Informatikprojekt/Arduino/Software/FreediverAppArduino/DiveComputer/build/CMakeFiles/Continuous.dir
+C:/Users/Standart/Documents/Studium/Informatikprojekt/Arduino/Software/FreediverAppArduino/DiveComputer/build/CMakeFiles/Nightly.dir
+C:/Users/Standart/Documents/Studium/Informatikprojekt/Arduino/Software/FreediverAppArduino/DiveComputer/build/CMakeFiles/PACKAGE.dir
+C:/Users/Standart/Documents/Studium/Informatikprojekt/Arduino/Software/FreediverAppArduino/DiveComputer/build/CMakeFiles/RUN_TESTS.dir
+C:/Users/Standart/Documents/Studium/Informatikprojekt/Arduino/Software/FreediverAppArduino/DiveComputer/build/CMakeFiles/ALL_BUILD.dir
+C:/Users/Standart/Documents/Studium/Informatikprojekt/Arduino/Software/FreediverAppArduino/DiveComputer/build/CMakeFiles/ZERO_CHECK.dir

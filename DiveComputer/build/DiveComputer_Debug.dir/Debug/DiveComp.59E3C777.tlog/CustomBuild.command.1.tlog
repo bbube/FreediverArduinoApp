@@ -1,0 +1,10 @@
+^C:\USERS\STANDART\DOCUMENTS\STUDIUM\INFORMATIKPROJEKT\ARDUINO\SOFTWARE\FREEDIVERAPPARDUINO\DIVECOMPUTER\CMAKELISTS.TXT
+setlocal
+"C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" -SC:/Users/Standart/Documents/Studium/Informatikprojekt/Arduino/Software/FreediverAppArduino/DiveComputer -BC:/Users/Standart/Documents/Studium/Informatikprojekt/Arduino/Software/FreediverAppArduino/DiveComputer/build --check-stamp-file C:/Users/Standart/Documents/Studium/Informatikprojekt/Arduino/Software/FreediverAppArduino/DiveComputer/build/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd

@@ -1,0 +1,10 @@
+^C:\USERS\STANDART\DOCUMENTS\STUDIUM\INFORMATIKPROJEKT\ARDUINO\SOFTWARE\FREEDIVERAPPARDUINO\DIVECOMPUTER\BUILD\CMAKEFILES\E07F547DAE9D3AD7DF35ADE900CAB0EC\GENERATE.STAMP.RULE
+setlocal
+"C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" -SC:/Users/Standart/Documents/Studium/Informatikprojekt/Arduino/Software/FreediverAppArduino/DiveComputer -BC:/Users/Standart/Documents/Studium/Informatikprojekt/Arduino/Software/FreediverAppArduino/DiveComputer/build --check-stamp-list CMakeFiles/generate.stamp.list --vs-solution-file C:/Users/Standart/Documents/Studium/Informatikprojekt/Arduino/Software/FreediverAppArduino/DiveComputer/build/DiveComputer_Debug.sln
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
