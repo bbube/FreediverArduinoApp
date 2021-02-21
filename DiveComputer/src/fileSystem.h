@@ -2,6 +2,7 @@
 #include <iostream>
 #include <string>
 #include <SD.h>
+#include <fstream>
 using namespace std;
 
 bool sameSession = false;
@@ -10,6 +11,7 @@ String directoryPath = "logFiles";
 String logPath;
 String divePath = "dive.log";
 String datePath = "date.log";
+String sessionsPath = "sessions.log";
 String date;
 
 int diveID = 1;
@@ -62,10 +64,20 @@ void setDiveID() {
   }
 }
 
+void writeDateToSessionFile() {
+  File file = SD.open(sessionsPath, FILE_WRITE);
+  if(file) {
+    file.println(date);
+    file.close();
+  }
+}
+
 //has to be implemented with the real-time-clock when built in
 void setDate() {
   date = to_string(millis()).substr(0, 6).c_str();
 }
+
+
 
 //-------META files--------
 //sets the date; checks if the meta-files "dive.log" and "date.log"
@@ -74,7 +86,7 @@ void setDate() {
 void initializeMetaData() {
 
   //just to imitate a date, has to be removed
-  while(millis() < 3501)
+  while(millis() < 3901)
 
   setDate();
   String oldDate;
@@ -83,11 +95,13 @@ void initializeMetaData() {
     if(!date.equals(oldDate)) {
       SD.remove(datePath);
       setDateToFile(date);
+      //writeDateToSessionFile();
     } else {
       sameSession = true;
     }
   } else {
     setDateToFile(date);
+    //writeDateToSessionFile();
   }
 
   if(SD.exists(divePath)) {

@@ -6,22 +6,23 @@ String createJsonString(int diveID, float duration, int heartrate, int oxygen, i
  float accX, float accY, float accZ, float gyrX, float gyrY, float gyrZ)
 {
   DynamicJsonDocument obj(1024);
-  obj["diveID"] = diveID;
+  obj["ref_dive"] = diveID;
   obj["duration"] = duration;
-  obj["heartrate"] = heartrate;
-  obj["oxygen"] = oxygen;
-  obj["confidence"] = confidence;
+  obj["heart_freq"] = heartrate;
+  obj["oxygen_saturation"] = oxygen;
+  obj["heart_var"] = confidence;
   obj["depth"] = depth;
-  obj["brightness"] = brightness;
-  obj["temperature"] = waterTemperature;
-  obj["accX"] = accX;
-  obj["accY"] = accY;
-  obj["accZ"] = accZ;
-  obj["gyrX"] = gyrX;
-  obj["gyrY"] = gyrY;
-  obj["gyrZ"] = gyrZ;
+  obj["luminance"] = brightness;
+  obj["water_temp"] = waterTemperature;
+  obj["accelerator_x"] = accX;
+  obj["accelerator_y"] = accY;
+  obj["accelerator_z"] = accZ;
+  obj["gyroscope_x"] = gyrX;
+  obj["gyroscope_y"] = gyrY;
+  obj["gyroscope_z"] = gyrZ;
   
   String output;
   serializeJson(obj, output);
   return output;
 }
+

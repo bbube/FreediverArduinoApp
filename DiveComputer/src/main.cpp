@@ -2,7 +2,7 @@
 #include "peripherals.h"
 #include "json.h"
 #include "bluetooth.h"
-#include "metafiles.h"
+#include "fileSystem.h"
 using namespace std;
 
 
@@ -36,12 +36,26 @@ void logData(String data) {
   }
 }
 
+void insertSpacer() {
+  File file = SD.open(logPath, FILE_WRITE);
+  if(file) {
+    file.println("#Uhrzeit");
+  }
+  file.close();
+}
+
 void btnDiveClickListener() {
 
   btnDive.loop(); // must call the loop() function first
   if (btnDive.isPressed() && btnDive.getStateRaw()==0) {
     if (loopStateDive == LOOP_STATE_STOPPED){
         loopStateDive = LOOP_STATE_STARTED;
+        if(!sameSession) {
+          writeDateToSessionFile();
+          sameSession = true;
+        }
+        insertSpacer();
+
     }
     else if(loopStateDive == LOOP_STATE_STARTED){
       loopStateDive = LOOP_STATE_STOPPED;
