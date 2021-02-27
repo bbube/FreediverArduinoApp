@@ -80,6 +80,7 @@ void btnBluetoothClickListener() {
 void setup() {
   
   Serial.begin(9600);
+  Serial.flush();
   Wire.begin();
   btnDive.setDebounceTime(5);
   btnBluetooth.setDebounceTime(20);
@@ -91,7 +92,22 @@ void setup() {
   inizializeBLE();
   createDirectory();
 
+  if(SD.exists("sessions.log"))
+    SD.remove(sessionsPath);
+  File file = SD.open(sessionsPath, FILE_WRITE);
+  if(file) {
+    file.println(3000);
+    file.println(3100);
+    file.println(3200);
+    file.println(3300);
+    file.println(3500);
+    file.println(3600);
+    file.println(3700);
+  }
+  file.close();
+
   logPath = String("") + directoryPath + "/" + date + ".log";
+  Serial.println(logPath);
 }
 
 void loop() {
@@ -100,8 +116,8 @@ void loop() {
   btnBluetoothClickListener();
 
   if (loopStateBluetooth == LOOP_STATE_STARTED) {
-    buildBluetoothConnection();    
-    delay(100);
+    buildBluetoothConnectionTesting();    
+    delay(200);
   } else if(loopStateDive == LOOP_STATE_STARTED) {
     logData(getData());
   }

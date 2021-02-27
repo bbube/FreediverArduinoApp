@@ -66,7 +66,9 @@ void setDiveID() {
 
 void writeDateToSessionFile() {
   File file = SD.open(sessionsPath, FILE_WRITE);
+  Serial.println("File erstellt");
   if(file) {
+    Serial.println("date: " + date);
     file.println(date);
     file.close();
   }
@@ -86,7 +88,7 @@ void setDate() {
 void initializeMetaData() {
 
   //just to imitate a date, has to be removed
-  while(millis() < 3901)
+  while(millis() < 3701)
 
   setDate();
   String oldDate;
@@ -112,10 +114,7 @@ void initializeMetaData() {
   }
   setDiveID();
 
-  Serial.println("meta-files initialized");
-  Serial.println("date         -> " + date);
-  Serial.println("dive         -> " + diveID);
-  Serial.println("same session -> " + sameSession);
+  
 }
 
 //creates a directory with given parameter as name
