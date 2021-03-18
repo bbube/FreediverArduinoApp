@@ -77,8 +77,7 @@ void btnBluetoothClickListener() {
   }
 }
 
-void setup() {
-  
+void setup() {  
   Serial.begin(9600);
   Serial.flush();
   Wire.begin();
@@ -91,10 +90,12 @@ void setup() {
   initializeMetaData();
   inizializeBLE();
   createDirectory();
-
-  if(SD.exists("sessions.log"))
-    SD.remove(sessionsPath);
-  File file = SD.open(sessionsPath, FILE_WRITE);
+  Serial.println("beginn testing");
+  if(SD.exists("sessions.log")){
+    SD.remove("sessions.log");
+    Serial.println("Es existedet.");
+  }
+  File file = SD.open("sessions.log", FILE_WRITE);
   if(file) {
     file.println(3000);
     file.println(3100);
@@ -105,6 +106,7 @@ void setup() {
     file.println(3700);
   }
   file.close();
+  Serial.println(getLastLineAndDeleteLine("sessions.log").c_str());
 
   logPath = String("") + directoryPath + "/" + date + ".log";
   Serial.println(logPath);

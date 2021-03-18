@@ -10,7 +10,7 @@ using namespace std;
 int dataLength = 300;
 
 BLEService DiveData("19B10000-E8F3-537E-4F6C-D194768A2214");
-BLECharacteristic DataStream( "19B10001-E8F2-537E-4F6C-D104768A1214", BLERead | BLENotify,210,(1==1));
+BLECharacteristic DataStream( "19B10001-E8F2-537E-4F6C-D104768A1214", BLERead | BLENotify,512,(1==1));
  
 /*
 BLEFloatCharacteristic accelerator_x("094a4ab5-d789-477e-8b3a-fd5fee1971f9", BLERead | BLENotify);
@@ -97,6 +97,7 @@ void inizializeBLE() {
   ref_dive.broadcast();
   water_temp.broadcast();
   */
+  BLE.setConnectionInterval(0xF0, 0x0c80);
   BLE.advertise();  
   Serial.println("Bluetooth device active, waiting for connections...");
 }
@@ -193,44 +194,52 @@ void getJson(char* outStr, float _accelerator_x, float _accelerator_y, float _ac
     Serial.print("out in fun: ");
 }
 
-String getLastLineAndDeleteLine(String filename)
+
+
+std::string getLastLineAndDeleteLine(std::string filename)
 {
-  std::vector<String> sessionArray;
+
+  Serial.println("Wir sind in der Funktion (aber traditionell).");
+  std::vector<std::string> sessionArray;
   
-  File file = SD.open(filename);
+  File file = SD.open(filename.c_str());
   if(file) {
+    int i = 0;
     while (file.available()) {
-      String data = file.readStringUntil('\n');
-      sessionArray.push_back(data);
-      Serial.println(data);
+      std::string dataS = file.readStringUntil('\n').c_str();
+      //char data[] = "";
+      //dataS.toCharArray(data, dataS.length()+1);      
+      sessionArray.push_back(dataS);
+      i++;
+      Serial.print(sessionArray[i].c_str());
+      
     }
-  }
-  Serial.println("Checkpoint 1");
+  }  
+  //Serial.println("Checkpoint 1");
   file.close();
-  SD.remove(filename);
-  File newFile = SD.open(filename, FILE_WRITE);
-  Serial.println("Checkpoint 2");
+  SD.remove(filename.c_str());
+
+  File newFile = SD.open(filename.c_str(), FILE_WRITE);
+  //Serial.println("Checkpoint 2");
   
-  if(newFile) {
-    
+  if(newFile) {    
     Serial.println("Checkpoint 3");
     if(sessionArray.size() < 1) {
       Serial.println(sessionArray.size());
       Serial.println("es ist passiert");
-      return "";
     }
     for (int i = 0; i < sessionArray.size()-1; i++)
     {
-      newFile.println(sessionArray[i]);
+      newFile.println(sessionArray[i].c_str());
       
-      Serial.println(sessionArray[i]);
+      Serial.println(sessionArray[i].c_str());
 
     }
     
   }
   newFile.close();
   Serial.println("Checkpoint 2");
-  Serial.println(sessionArray[sessionArray.size()-1]);
+  Serial.println(sessionArray[sessionArray.size()-1].c_str());
   return sessionArray[sessionArray.size()-1];
 } 
 
@@ -256,44 +265,47 @@ void buildBluetoothConnectionTesting() {
   if(central) {
     Serial.print("Connected to central: ");
     Serial.println(central.address());
-    int i = 0;
+    
     while(central.connected()) {
-      i++;      
       
-      _ref_dive++;
-      _heart_freq++;
-      char json[200] = "";
-      //      
-      char jsonPart[20];
-      snprintf(jsonPart, 20, "{\"1\":%d", _ref_dive);
-      strcat(json, jsonPart);      
-      snprintf(jsonPart, 20, ",\"2\":%d", _accelerator_x);
-      strcat(json, jsonPart);      
-      snprintf(jsonPart, 20, ",\"3\":%d", _accelerator_y);
-      strcat(json, jsonPart);      
-      snprintf(jsonPart, 20, "\"4\":%d", _accelerator_z);
-      strcat(json, jsonPart);      
-      snprintf(jsonPart, 20, ",\"5\":%d", _depth);
-      strcat(json, jsonPart);      
-      snprintf(jsonPart, 20, ",\"6\":%d", _duration);
-      strcat(json, jsonPart);      
-      snprintf(jsonPart, 20, ",\"7\":%d", _gyroscope_x);
-      strcat(json, jsonPart);      
-      snprintf(jsonPart, 20, ",\"8\":%d", _gyroscope_y);
-      strcat(json, jsonPart);      
-      snprintf(jsonPart, 20, ",\"9\":%d", _gyroscope_z);
-      strcat(json, jsonPart);      
-      snprintf(jsonPart, 20, ",\"10\":%d", _heart_freq);
-      strcat(json, jsonPart);      
-      snprintf(jsonPart, 20, ",\"11\":%d", _heart_var);
-      strcat(json, jsonPart);      
-      snprintf(jsonPart, 20, ",\"12\":%d", _luminance);
-      strcat(json, jsonPart);      
-      snprintf(jsonPart, 20, ",\"13\":%d", _oxygen_saturation);
-      strcat(json, jsonPart);      
-      snprintf(jsonPart, 20, ",\"14\":%d", _water_temp);
-      strcat(json, jsonPart);    
-      strcat(json, "}");
+      char json[500] = "";
+      for (size_t u = 0; u < 3; u++)
+      { 
+        _ref_dive++;
+        _heart_freq++;
+             
+        char jsonPart[20];              
+        snprintf(jsonPart, 20, "{\"1\":%.4f", _accelerator_x);
+        strcat(json, jsonPart);      
+        snprintf(jsonPart, 20, ",\"2\":%.4f", _accelerator_y);
+        strcat(json, jsonPart);      
+        snprintf(jsonPart, 20, ",\"3\":%.4f", _accelerator_z);
+        strcat(json, jsonPart);      
+        snprintf(jsonPart, 20, ",\"4\":%.4f", _depth);
+        strcat(json, jsonPart);      
+        snprintf(jsonPart, 20, ",\"5\":%.4f", _duration);
+        strcat(json, jsonPart);      
+        snprintf(jsonPart, 20, ",\"6\":%.4f", _gyroscope_x);
+        strcat(json, jsonPart);      
+        snprintf(jsonPart, 20, ",\"7\":%.4f", _gyroscope_y);
+        strcat(json, jsonPart);      
+        snprintf(jsonPart, 20, ",\"8\":%.4f", _gyroscope_z);
+        strcat(json, jsonPart);      
+        snprintf(jsonPart, 20, ",\"9\":%d", _heart_freq);
+        strcat(json, jsonPart);      
+        snprintf(jsonPart, 20, ",\"10\":%d", _heart_var);
+        strcat(json, jsonPart);      
+        snprintf(jsonPart, 20, ",\"11\":%d", _luminance);
+        strcat(json, jsonPart);      
+        snprintf(jsonPart, 20, ",\"12\":%d", _oxygen_saturation);        
+        strcat(json, jsonPart);      
+        snprintf(jsonPart, 20, ",\"13\":%d", _ref_dive);
+        strcat(json, jsonPart);
+        snprintf(jsonPart, 20, ",\"14\":%.4f", _water_temp);
+        strcat(json, jsonPart);    
+        strcat(json, "}");
+      }
+      
       DataStream.writeValue(json);
       //
 		  //getJson(json, _accelerator_x, _accelerator_y, _accelerator_z, _depth, _duration, _gyroscope_x, _gyroscope_y, _gyroscope_z, _heart_freq, _heart_var, _luminance, _oxygen_saturation, _ref_dive, _water_temp);
