@@ -3,21 +3,24 @@
 #include <string>
 #include <SD.h>
 #include <fstream>
+
+#define dateLength 10
+
 using namespace std;
 
 bool sameSession = false;
 
-String directoryPath = "logFiles";
-String logPath;
-String divePath = "dive.log";
-String datePath = "date.log";
-String sessionsPath = "sessions.log";
-String date;
+char directoryPath[] = "logFiles";
+char logPath[22];
+char divePath[] = "dive.log";
+char datePath[] = "date.log";
+char sessionsPath[] = "sessions.log";
+char date[9];
 
 int diveID = 1;
 
 //writes the value of variable date into the date-file
-void setDateToFile(String d) {
+void setDateToFile(char d[]) {
 
   File file = SD.open(datePath, FILE_WRITE);
   if(file) {
@@ -28,15 +31,14 @@ void setDateToFile(String d) {
 
 //returns the date from the date-file
 //returns empty string if failed to open the file
-String getDateFromFile() {
+void getDateFromFile(char* result) {
 
   File file = SD.open(datePath);
+  
   if(file) {
-    String x = file.readString();
-    file.close();
-    return x;
+	  file.readString().toCharArray(result, dateLength);	
+	  file.close();
   }
-  return ""; //maybe error for later checks
 }
 
 //returns the diveID from the diveID-file
@@ -68,15 +70,18 @@ void writeDateToSessionFile() {
   File file = SD.open(sessionsPath, FILE_WRITE);
   Serial.println("File erstellt");
   if(file) {
-    Serial.println("date: " + date);
-    file.println(date);
+    Serial.print("date: ");
+	  Serial.println(date);
+	  file.println(date);
     file.close();
   }
 }
 
 //has to be implemented with the real-time-clock when built in
-void setDate() {
-  date = to_string(millis()).substr(0, 6).c_str();
+void setDate() {	
+  char out[20];
+  snprintf(out, sizeof out, "%id", millis());
+  strncpy ( date, out, 6);
 }
 
 
@@ -91,10 +96,11 @@ void initializeMetaData() {
   while(millis() < 3701)
 
   setDate();
-  String oldDate;
+  char oldDate[dateLength];
+
   if (SD.exists(datePath)) {
-    oldDate = getDateFromFile();
-    if(!date.equals(oldDate)) {
+    getDateFromFile(oldDate);
+    if(strcmp(date,oldDate)==0) {
       SD.remove(datePath);
       setDateToFile(date);
       //writeDateToSessionFile();
@@ -112,9 +118,7 @@ void initializeMetaData() {
     }
     SD.remove(divePath);
   }
-  setDiveID();
-
-  
+  setDiveID();  
 }
 
 //creates a directory with given parameter as name
@@ -122,3 +126,12 @@ void createDirectory() {
   SD.mkdir(directoryPath);
   Serial.println("directory created");
 }
+
+bool isEqual(char* arr1, char* arr2){
+	for (int i = 0; i < dateLength; i++){
+        if(arr1[i] != arr2[i])
+			return false;
+	}
+	return true;
+}
+

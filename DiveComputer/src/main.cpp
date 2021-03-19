@@ -78,7 +78,7 @@ void btnBluetoothClickListener() {
 }
 
 void setup() {  
-  Serial.begin(9600);
+  Serial.begin(1200);
   Serial.flush();
   Wire.begin();
   btnDive.setDebounceTime(5);
@@ -93,22 +93,40 @@ void setup() {
   Serial.println("beginn testing");
   if(SD.exists("sessions.log")){
     SD.remove("sessions.log");
-    Serial.println("Es existedet.");
+    Serial.println("Es existedeted.");
   }
   File file = SD.open("sessions.log", FILE_WRITE);
   if(file) {
-    file.println(3000);
-    file.println(3100);
-    file.println(3200);
-    file.println(3300);
-    file.println(3500);
-    file.println(3600);
-    file.println(3700);
+    file.println("01.02.21");
+    file.println("05.02.21");
+    file.println("18.02.21");
+    file.println("04.03.21");
+    file.println("10.03.21");
+    file.println("16.03.21");
+    file.println("19.03.21");
   }
   file.close();
-  Serial.println(getLastLineAndDeleteLine("sessions.log").c_str());
+  char tmp[9];
+  getLastLineAndDeleteLine("sessions.log", tmp);
+  Serial.println(tmp);
+  getLastLineAndDeleteLine("sessions.log", tmp);
+  Serial.println(tmp);
+  getLastLineAndDeleteLine("sessions.log", tmp);
+  Serial.println(tmp);
+  getLastLineAndDeleteLine("sessions.log", tmp);
+  Serial.println(tmp);
 
-  logPath = String("") + directoryPath + "/" + date + ".log";
+  File file2 = SD.open("sessions.log");
+  if(file2){
+    String x = "";
+    while(file2.available()){
+      x = file2.readStringUntil('\n');
+      Serial.println(x);
+    }
+  }
+  file2.close();
+
+  //logPath = String("") + directoryPath + "/" + date + ".log";
   Serial.println(logPath);
 }
 

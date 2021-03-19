@@ -34,12 +34,7 @@ char testData[] = "{\"ref_dive\":1,\"duration\":9438,\"heart_freq\":0,\"oxygen_s
 char testData2[] = "{\"rf\":1,\"dur\":9438,\"hf\":0,\"os\":0,\"hv\":0,\"d\":93,\"lu\":78,\"wt\":6,\"ax\":0.030151,\"ay\":0.002563,\"az\":1.012573,\"gx\":1.037598,\"gy\":-3.173828,\"gz\":-1.647949}";
 //std::vector<String> sessionsArray;
 
-String directoryPath2 = "logFiles";
-
-String sendMetaData() {
-
-}
-
+char directoryPath2[] = "logFiles";
 
 //-------BLE--------
 //initializing the BLE unit
@@ -56,95 +51,24 @@ void inizializeBLE() {
   BLE.setAdvertisedService(DiveData);  
   DataStream.broadcast();
   */
-  /*
-  accelerator_x.addDescriptor(nameDescriptor);
-
   
-  
-
-  DiveData.addCharacteristic(accelerator_x);
-  DiveData.addCharacteristic(accelerator_y);
-  DiveData.addCharacteristic(accelerator_z);
-  DiveData.addCharacteristic(depth);
-  DiveData.addCharacteristic(duration);
-  DiveData.addCharacteristic(gyroscope_x);
-  DiveData.addCharacteristic(gyroscope_y);
-  DiveData.addCharacteristic(gyroscope_z);
-  DiveData.addCharacteristic(heart_freq);
-  DiveData.addCharacteristic(heart_var);
-  DiveData.addCharacteristic(luminance);
-  DiveData.addCharacteristic(oxygen_saturation);
-  DiveData.addCharacteristic(ref_dive);
-  DiveData.addCharacteristic(water_temp);
-  */
   DiveData.addCharacteristic(DataStream);
   BLE.addService(DiveData);
   BLE.setAdvertisedService(DiveData);
   DataStream.broadcast();
-  /*
-  accelerator_x.broadcast();
-  accelerator_y.broadcast();
-  accelerator_z.broadcast();
-  depth.broadcast();
-  duration.broadcast();
-  gyroscope_x.broadcast();
-  gyroscope_y.broadcast();
-  gyroscope_z.broadcast();
-  heart_freq.broadcast();
-  heart_var.broadcast();
-  luminance.broadcast();
-  oxygen_saturation.broadcast();
-  ref_dive.broadcast();
-  water_temp.broadcast();
-  */
+  
   BLE.setConnectionInterval(0xF0, 0x0c80);
   BLE.advertise();  
   Serial.println("Bluetooth device active, waiting for connections...");
 }
 
-void sendData(
-  float _accelerator_x, 
-  float _accelerator_y, 
-  float _accelerator_z,
-  float _depth,
-  float _duration,
-  float _gyroscope_x,
-  float _gyroscope_y,
-  float _gyroscope_z,
-  int _heart_freq, 
-  int _heart_var, 
-  int _luminance,
-  int _oxygen_saturation,
-  int _ref_dive,
-  float _water_temp) {
-  /*
-	accelerator_x.writeValue(_accelerator_x);
-  delay(10);
-	accelerator_y.writeValue(_accelerator_y);
-  delay(10);
-	accelerator_z.writeValue(_accelerator_z);
-  delay(10);
-	depth.writeValue(_depth);
-  delay(10);
-	duration.writeValue(_duration);
-  delay(10);
-	gyroscope_x.writeValue(_gyroscope_x);
-  delay(10);
-	gyroscope_y.writeValue(_gyroscope_y);
-	gyroscope_z.writeValue(_gyroscope_z);
-	heart_freq.writeValue(_heart_freq);
-	heart_var.writeValue(_heart_var);
-	luminance.writeValue(_luminance);
-	oxygen_saturation.writeValue(_oxygen_saturation);
-	ref_dive.writeValue(_ref_dive);
-	water_temp.writeValue(_water_temp);
-  */
-}
 
 void getJsonPart(char* outStr, char input[], float input2)
 {  
   snprintf(outStr, 20, input, input2);
 }
+
+
 
 void getJsonPart(char* outStr, char input[], int input2)
 {  
@@ -195,38 +119,46 @@ void getJson(char* outStr, float _accelerator_x, float _accelerator_y, float _ac
 }
 
 
-
-std::string getLastLineAndDeleteLine(std::string filename)
+//this function did cost a LOT of time and nerves (traditionally)
+void getLastLineAndDelete(char filename[], char* result)
 {
-
   Serial.println("Wir sind in der Funktion (aber traditionell).");
-  std::vector<std::string> sessionArray;
-  
-  File file = SD.open(filename.c_str());
+  Serial.println(filename);
+  File file = SD.open(filename, FILE_WRITE_TRAD);
+  Serial.println("File geöffnet.");
   if(file) {
+    Serial.println("inside if... traditionell");
+    file.seek(0);
     int i = 0;
     while (file.available()) {
-      std::string dataS = file.readStringUntil('\n').c_str();
-      //char data[] = "";
-      //dataS.toCharArray(data, dataS.length()+1);      
-      sessionArray.push_back(dataS);
-      i++;
-      Serial.print(sessionArray[i].c_str());
-      
+      char c[2];
+      file.read(c, 2);
+      Serial.print("Ob Stern oder nicht, sagt dir gleich das licht: ");
+      Serial.println(c[0]);
+      if(c[0] != '*') {
+        Serial.println("traditionell reingekommen");
+        file.seek(i);
+        file.print('*');
+        file.readStringUntil('\n').toCharArray(result, 9);
+        file.flush();
+        break;
+      } else {
+        file.readStringUntil('\n');
+      }
+      i+=10;
     }
   }  
   //Serial.println("Checkpoint 1");
+  /*
   file.close();
   SD.remove(filename.c_str());
 
   File newFile = SD.open(filename.c_str(), FILE_WRITE);
   //Serial.println("Checkpoint 2");
   
-  if(newFile) {    
-    Serial.println("Checkpoint 3");
+  if(newFile) {
     if(sessionArray.size() < 1) {
       Serial.println(sessionArray.size());
-      Serial.println("es ist passiert");
     }
     for (int i = 0; i < sessionArray.size()-1; i++)
     {
@@ -238,9 +170,8 @@ std::string getLastLineAndDeleteLine(std::string filename)
     
   }
   newFile.close();
-  Serial.println("Checkpoint 2");
-  Serial.println(sessionArray[sessionArray.size()-1].c_str());
   return sessionArray[sessionArray.size()-1];
+  */
 } 
 
 
@@ -328,47 +259,38 @@ void buildBluetoothConnection() {
   {
     Serial.print("Connected to central: ");
     Serial.println(central.address());
-    String log;
+    char date[7];
 
-    int x = 0;
-    while(central.connected()) { //central.connected()
+    while(central.connected()) {
   
-        log = getLastLineAndDeleteLine("Sessions.log");
+        date = getLastLineAndDeleteLine("Sessions.log", );
         Serial.print("Das ist log: ");
-        Serial.println(log);
-        if(log.length() != 0) {
-          sendData(log);
-          File file = SD.open("logfiles/" + log + ".log");
+        Serial.println(date);
+        if(date.length() != 0) {
+          DataStream.writeValue(("{" + date + "}").c_str());
           
-          string output2;
-          output2.append("logfiles/").append(log.c_str()).append(".log");
-
-          Serial.println("sending Data now...");
-          while(true)
-            sendData(output2.c_str());
-
+          //File file = SD.open(("logfiles/" + date + ".log").c_str());
           
-          String data;
+          std::string logfilePath = "";
+          logfilePath = logfilePath.append("logfiles/").append(date.c_str()).append(".log");
+          Serial.println(logfilePath.c_str());
+
+          File file = SD.open(logfilePath.c_str());
+
+          std::string data;
           if(file) {
             Serial.println("inside if");
             while (file.available()) {
               Serial.println("inside while");
-              data = file.readStringUntil('\n');
-              Serial.print(data);
+              data = file.readStringUntil('\n').c_str();
+              Serial.println(data.c_str());
               sendData(data);
             }
           }
-          
         } 
         else central.disconnect();
         delay(200);
-        
-        
-        x++;
     } 
-    
-      
-    
   }
   
   Serial.print("Disconnected from central: ");
