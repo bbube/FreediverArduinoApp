@@ -1,28 +1,24 @@
 #include <ArduinoJson.h>
 
-
 //returns a Json String with values: diveID, time, heartrate, oxygen, confidence, depth, brightness, temperature, accX, accY, accZ, gyrX, gyrY, gyrZ
-String createJsonString(int diveID, float duration, int heartrate, int oxygen, int confidence, float depth, int brightness, float waterTemperature,
- float accX, float accY, float accZ, float gyrX, float gyrY, float gyrZ)
+void createJsonString(int diveID, float duration, int heartrate, int oxygen, int confidence, float depth, int brightness, float waterTemperature,
+ float accX, float accY, float accZ, float gyrX, float gyrY, float gyrZ, char* jsonString)
 {
-  DynamicJsonDocument obj(1024);
-  obj["ref_dive"] = diveID;
-  obj["duration"] = duration;
-  obj["heart_freq"] = heartrate;
-  obj["oxygen_saturation"] = oxygen;
-  obj["heart_var"] = confidence;
-  obj["depth"] = depth;
-  obj["luminance"] = brightness;
-  obj["water_temp"] = waterTemperature;
-  obj["accelerator_x"] = accX;
-  obj["accelerator_y"] = accY;
-  obj["accelerator_z"] = accZ;
-  obj["gyroscope_x"] = gyrX;
-  obj["gyroscope_y"] = gyrY;
-  obj["gyroscope_z"] = gyrZ;
-  
-  String output;
-  serializeJson(obj, output);
-  return output;
+	DynamicJsonDocument obj(1024);
+	obj["1"] = accX;
+	obj["2"] = accY;
+	obj["3"] = accZ;
+	obj["4"] = depth;
+	obj["5"] = duration;
+	obj["6"] = gyrX;
+	obj["7"] = gyrY;
+	obj["8"] = gyrZ;
+	obj["9"] = heartrate;
+	obj["10"] = confidence;
+	obj["11"] = brightness;
+	obj["12"] = oxygen;
+	obj["13"] = diveID;
+	obj["14"] = waterTemperature;
+	
+	serializeJson(obj, jsonString, 200);
 }
-
