@@ -96,8 +96,8 @@ void btnBluetoothClickListener()
 void setup() 
 { 
     delay(1000); 
-    Serial.begin(1200);
-    Serial.flush();
+    Serial.begin(9600);
+    //Serial.flush();
     Wire.begin();
     btnDive.setDebounceTime(5);
     btnBluetooth.setDebounceTime(20);
@@ -110,6 +110,7 @@ void setup()
     createDirectory();
     Serial.println("beginn testing");
     
+    /*
     File file2 = SD.open("sessions.log");    
     if (file2)
     {
@@ -122,9 +123,10 @@ void setup()
     }
     file2.close();
     
+    
     //logPath = String("") + directoryPath + "/" + date + ".log";
-    snprintf(logPath, 30, "logfiles/%s.log", date);
-    Serial.println(logPath);
+    //snprintf(logPath, 30, "logfiles/%s.log", date);
+    // Serial.println(logPath);
 
 
     char ch1[] = "equal";
@@ -138,7 +140,7 @@ void setup()
 
     Serial.print("is unequal: ");
     Serial.println(strcmp(ch3,ch4));
-
+    */
 }
 
 void loop() 

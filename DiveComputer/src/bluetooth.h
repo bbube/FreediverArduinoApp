@@ -6,13 +6,16 @@ using namespace std;
 
 int dataLength = 300;
 
-char openingBracket[] = "{";
-char closingBracket[] = "}";
+const char openingBracket[] PROGMEM = "{";
+const char closingBracket[] PROGMEM = "}";
 
-BLEService DiveDataService("19B10000-E8F3-537E-4F6C-D194768A2214");
-BLECharacteristic DiveDataCharacteristic( "19B10001-E8F2-537E-4F6C-D104768A1214", BLERead | BLENotify,512,(1==1));
+const char serviceID[] PROGMEM = "19B10000-E8F3-537E-4F6C-D194768A2214";
+const char characteristicID[] PROGMEM = "19B10001-E8F2-537E-4F6C-D104768A1214";
 
-char directoryPath2[] = "logFiles";
+BLEService DiveDataService(serviceID);
+BLECharacteristic DiveDataCharacteristic( characteristicID, BLERead | BLENotify,512,(1==1));
+
+const char directoryPath2[] PROGMEM = "logFiles";
 char logfilePath2[30];
 
 //-------BLE--------
@@ -33,7 +36,7 @@ void inizializeBLE()
     
     BLE.setConnectionInterval(0xF0, 0x0c80);
     BLE.advertise();  
-    Serial.println("Bluetooth device active, waiting for connections...");
+    Serial.println("BLE active"); //uetooth device active, waiting for connections...");
 }
 
 //this function did cost a LOT of time and nerves (traditionally)
@@ -68,7 +71,7 @@ bool getFirstLineAndDelete(char filename[], char* result)
     return false;
 } 
 
-void addBracketsToDate(char* result, int resultSize, char b1[], char date[], char b2[]) 
+void addBracketsToDate(char* result, int resultSize, const char* b1, char date[], const char* b2) 
 {
     snprintf(result, resultSize, "%s%s%s", b1, date, b2);
 }
@@ -92,7 +95,7 @@ void buildBluetoothConnection()
       fileAvailable = getFirstLineAndDelete("Sessions.log", date);
       Serial.print("Das ist log: ");
       Serial.println(date);
-      if(fileAvailable) 
+      if(true) 
       {
         char dateString[12];
         addBracketsToDate(dateString, sizeof dateString, openingBracket, date, closingBracket);
@@ -103,8 +106,8 @@ void buildBluetoothConnection()
         
         //snprintf(logfilePath2, 30, "logfiles/%s.log", date);
         
-        //snprintf(logfilePath2, 25, "logfiles/%s.log", date);
-        char testPath[] = "logfiles/35_03_21.log";
+        snprintf(logfilePath2, 25, "logfiles/%s.log", date);
+        char testPath[] = "logfiles/44_03_21.log";
 
         Serial.print("Aktueller logpath: ");
         Serial.println(logfilePath2);      
@@ -114,37 +117,36 @@ void buildBluetoothConnection()
         if(file) 
         {
           Serial.println("file traditionell geöffnet");
+          int i = 0;
+          char data[512] PROGMEM;
+          char tmp[170] PROGMEM;
           while (file.available()) 
-          {           
-            char line[200];
-            char package[480];
-
-            file.readStringUntil('\n').toCharArray(line, 200);
-            strcat(package, line);
-            memset(line, 0, sizeof(line));
-
-            file.readStringUntil('\n').toCharArray(line, 200);
-			      strcat(package, line);
-			      memset(line, 0, sizeof(line));
-
-            file.readStringUntil('\n').toCharArray(line, 200);
-            strcat(package, line);
-            memset(line, 0, sizeof(line));
-
-            
-            Serial.println("############################");
-
-            //Da C eine traditionelle Sprache ist, sollte das funktionieren
-            //snprintf(package, sizeof(package), "%s%s%s", data1, data2, data3);
-            //addBracketsToDate(package, sizeof package, data1, data2, data3);
-			     Serial.println(package);
-				 memset(package, 0, sizeof package);
-
-				 //memset(data1, 0, sizeof(data1));
-				 //memset(data2, 0, sizeof(data2));
-				 //memset(data3, 0, sizeof(data3));
-				 //sendData(package);
-				 //sendData(data);
+          {
+            if(i % 3 == 0)
+            {
+              file.readStringUntil('\n').toCharArray(data, 512);
+              // Serial.print("modulo 3 = 0: ");
+              // Serial.println(data);
+            } 
+            else if(i % 3 == 1)
+            {
+              file.readStringUntil('\n').toCharArray(tmp, 170);
+              strcat(data, tmp);
+              //snprintf(data, 420, tmp);
+              memset(tmp, 0, 170);
+              // Serial.print("modulo 3 = 1 ");
+              // Serial.println(data);
+            }
+            else if(i % 3 == 2)
+            {
+              file.readStringUntil('\n').toCharArray(tmp,170);
+              strcat(data, tmp);
+              //snprintf(data, 512, tmp);              
+              Serial.println("sending: ");
+              DiveDataCharacteristic.writeValue(data);
+              memset(data, 0, 512);
+            }
+            i++;
           }
         }
       }

@@ -6,16 +6,17 @@
 
 #define dateLength 10
 
+
 using namespace std;
 
 bool sameSession = false;
 
-char directoryPath[] = "logFiles/";
-char logPath[25];
-char divePath[] = "dive.log";
-char datePath[] = "date.log";
-char sessionsPath[] = "sessions.log";
-char date[10];
+const char directoryPath[] PROGMEM = "logFiles/";
+const char divePath[] PROGMEM = "dive.log";
+const char datePath[] PROGMEM = "date.log";
+const char sessionsPath[] PROGMEM = "sessions.log";
+char date[10] PROGMEM;
+char logPath[25] PROGMEM;
 
 int diveID = 1;
 
@@ -75,13 +76,9 @@ void setDiveID()
 
 void writeDateToSessionFile(char* date) 
 {
-    File file = SD.open(sessionsPath, FILE_WRITE);
-    Serial.println("File erstellt");
-    
+    File file = SD.open(sessionsPath, FILE_WRITE);    
     if(file) 
     {
-        Serial.print("date: ");
-        Serial.println(date);
         file.println(date);
         file.close();
     }
@@ -94,7 +91,7 @@ void setDate()
     //snprintf(out, sizeof out, "%id", millis());
     //strncpy ( date, out, 6);
     
-    char currDate[] = "36_03_21";
+    char currDate[] = "45_03_21";
     snprintf(date, sizeof date, "%s", currDate);
 }
 
@@ -112,11 +109,6 @@ void initializeMetaData()
     if (SD.exists(datePath)) 
     {
         getDateFromFile(oldDate);
-        Serial.print("oldDate: ");
-        Serial.println(oldDate);
-        Serial.print("date: ");
-        Serial.println(date);
-
         if (strcmp(date,oldDate) != 0) 
         {
             SD.remove(datePath);
@@ -149,5 +141,4 @@ void initializeMetaData()
 void createDirectory() 
 {
     SD.mkdir(directoryPath);
-    Serial.println("directory created");
 }
