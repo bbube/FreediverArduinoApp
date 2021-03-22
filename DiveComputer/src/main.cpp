@@ -150,7 +150,8 @@ void loop()
 
   if (loopStateBluetooth == LOOP_STATE_STARTED) 
   {
-      buildBluetoothConnection();    
+      //buildBluetoothConnection();  
+      bluetoothTraditionell();
       delay(200);
   } 
   else if (loopStateDive == LOOP_STATE_STARTED) 

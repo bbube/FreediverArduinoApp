@@ -76,6 +76,124 @@ void addBracketsToDate(char* result, int resultSize, const char* b1, char date[]
     snprintf(result, resultSize, "%s%s%s", b1, date, b2);
 }
 
+void buildBluetoothConnectionTesting() {
+
+  BLEDevice central = BLE.central();
+  float _accelerator_x = 0.04f;
+  float _accelerator_y = 0.02f;
+  float _accelerator_z = 100.83f;
+  float _depth = 34.92f;
+  float _duration = 232023.f;
+  float _gyroscope_x = 0.324f;
+  float _gyroscope_y = 0.367f;
+  float _gyroscope_z = 0.546f;
+  int _heart_freq = 1;
+  int _heart_var = 80;
+  int _luminance = 120;
+  int _oxygen_saturation = 98;
+  int _ref_dive = 1;
+  float _water_temp = 23.75;
+
+  if(central) {
+    Serial.print("Connected to central: ");
+    Serial.println(central.address());
+    
+    while(central.connected()) {
+      
+      char json[500] = "";
+      for (size_t u = 0; u < 3; u++)
+      { 
+        _ref_dive++;
+        _heart_freq++;
+             
+        char jsonPart[20];              
+        snprintf(jsonPart, 20, "{\"1\":%.4f", _accelerator_x);
+        strcat(json, jsonPart);      
+        snprintf(jsonPart, 20, ",\"2\":%.4f", _accelerator_y);
+        strcat(json, jsonPart);      
+        snprintf(jsonPart, 20, ",\"3\":%.4f", _accelerator_z);
+        strcat(json, jsonPart);      
+        snprintf(jsonPart, 20, ",\"4\":%.4f", _depth);
+        strcat(json, jsonPart);      
+        snprintf(jsonPart, 20, ",\"5\":%.4f", _duration);
+        strcat(json, jsonPart);      
+        snprintf(jsonPart, 20, ",\"6\":%.4f", _gyroscope_x);
+        strcat(json, jsonPart);      
+        snprintf(jsonPart, 20, ",\"7\":%.4f", _gyroscope_y);
+        strcat(json, jsonPart);      
+        snprintf(jsonPart, 20, ",\"8\":%.4f", _gyroscope_z);
+        strcat(json, jsonPart);      
+        snprintf(jsonPart, 20, ",\"9\":%d", _heart_freq);
+        strcat(json, jsonPart);      
+        snprintf(jsonPart, 20, ",\"10\":%d", _heart_var);
+        strcat(json, jsonPart);      
+        snprintf(jsonPart, 20, ",\"11\":%d", _luminance);
+        strcat(json, jsonPart);      
+        snprintf(jsonPart, 20, ",\"12\":%d", _oxygen_saturation);        
+        strcat(json, jsonPart);      
+        snprintf(jsonPart, 20, ",\"13\":%d", _ref_dive);
+        strcat(json, jsonPart);
+        snprintf(jsonPart, 20, ",\"14\":%.4f", _water_temp);
+        strcat(json, jsonPart);    
+        strcat(json, "}");
+      }
+      
+      DiveDataCharacteristic.writeValue(json);
+      //
+		  //getJson(json, _accelerator_x, _accelerator_y, _accelerator_z, _depth, _duration, _gyroscope_x, _gyroscope_y, _gyroscope_z, _heart_freq, _heart_var, _luminance, _oxygen_saturation, _ref_dive, _water_temp);
+		  Serial.print("json in ble: ");
+      Serial.println(json);
+      delay(200);
+    }
+    central.disconnect();
+  }
+  Serial.print("Disconnected from central: ");
+  Serial.println(central.address());
+}
+
+void bluetoothTraditionell()
+{
+  BLEDevice central = BLE.central();  
+
+  if(central) {
+    Serial.print("Connected to central: ");
+    Serial.println(central.address());
+    
+    while(central.connected()) {
+      
+      char json[500] = "";
+      char path[] = "logfiles/45_03_21.log";
+      char jsonPart[190]  = "";
+
+      //snprintf(path, 30, "logfiles/45_03_21.log");
+
+      File mFile = SD.open(path);
+      Serial.println("ja");
+      if (mFile)
+      {
+        Serial.println("nein");
+        while (mFile.available())
+        {
+          for (size_t u = 0; u < 3; u++)
+          { 
+            mFile.readStringUntil('\n').toCharArray(jsonPart, 160);
+            Serial.println(jsonPart);
+            delay(100);
+            strcat(json, jsonPart);          
+          }
+          DiveDataCharacteristic.writeValue(json);
+          Serial.print("json in ble: ");
+          Serial.println(json);
+          delay(200);
+        }
+      }
+    }
+    central.disconnect();
+  }
+  Serial.print("Disconnected from central: ");
+  Serial.println(central.address());
+}
+
 void buildBluetoothConnection() 
 {
   BLEDevice central = BLE.central();  
@@ -88,13 +206,14 @@ void buildBluetoothConnection()
     bool fileAvailable;
     
     int count = 0;
-    while(count < 5) //central.connected()
+    while(central.connected())
     { 
       count++;
 
       fileAvailable = getFirstLineAndDelete("Sessions.log", date);
       Serial.print("Das ist log: ");
       Serial.println(date);
+      
       if(true) 
       {
         char dateString[12];
@@ -152,11 +271,11 @@ void buildBluetoothConnection()
       }
       else 
       {
-        central.disconnect();     
+        //central.disconnect();     
       }
       delay(666);
     }
-    central.disconnect();
+    //central.disconnect();
   }
   
   Serial.print("Disconnected from central: ");
