@@ -9,11 +9,25 @@ int dataLength = 300;
 const char openingBracket[] PROGMEM = "{";
 const char closingBracket[] PROGMEM = "}";
 
-const char serviceID[] PROGMEM = "19B10000-E8F3-537E-4F6C-D194768A2214";
-const char characteristicID[] PROGMEM = "19B10001-E8F2-537E-4F6C-D104768A1214";
+BLEService DiveData("19B10000-E8F3-537E-4F6C-D194768A2214");
 
-BLEService DiveDataService(serviceID);
-BLECharacteristic DiveDataCharacteristic( characteristicID, BLERead | BLENotify,512,(1==1));
+BLEFloatCharacteristic accelerator_x("094a4ab5-d789-477e-8b3a-fd5fee1971f9", BLERead | BLENotify);
+BLEFloatCharacteristic accelerator_y("63e30608-53f1-48fb-a7f1-8363ed609a39", BLERead | BLENotify);
+BLEFloatCharacteristic accelerator_z("82dea7b6-2091-4a8a-a788-fcaf0fba84e4", BLERead | BLENotify);
+BLEFloatCharacteristic depth("70b263a4-faa9-4940-96a6-ce481cfd5803", BLERead | BLENotify);
+BLEFloatCharacteristic duration("21980bb5-887a-4a8f-9598-51bb19b41068", BLERead | BLENotify);
+BLEFloatCharacteristic gyroscope_x("b6cf7ab8-525d-4e27-86e9-c4e7fe32223c", BLERead | BLENotify);
+BLEFloatCharacteristic gyroscope_y("c4fa00ce-5af9-40b7-b960-1658a8074320", BLERead | BLENotify);
+BLEFloatCharacteristic gyroscope_z("5475ba53-bcbd-43de-b410-c06ed3a50142", BLERead | BLENotify);
+BLEIntCharacteristic   heart_freq("5fa8fde9-8717-45b8-8d7a-2b4da78b627a", BLERead | BLENotify);
+BLEIntCharacteristic   heart_var("af2dc2ff-e565-4183-ae8a-a5bc018967c3", BLERead | BLENotify);
+BLEIntCharacteristic   luminance("4433820f-7709-4881-ad18-adc063ddc0a1", BLERead | BLENotify); 
+BLEIntCharacteristic   oxygen_saturation("ab9db830-e5b5-4c12-8c9b-845386bf6dc8", BLERead | BLENotify);
+BLEIntCharacteristic   ref_dive("b8589826-9f39-445d-901e-699db1cad791", BLERead | BLENotify);
+BLEFloatCharacteristic water_temp("3473bdad-806f-419f-875a-0f2472e3fe53", BLERead | BLENotify);
+
+BLEFloatCharacteristic ack("76e8ad5b-fe45-4871-a4c0-04962a35bbed", BLERead | BLEWrite | BLENotify);
+BLECharacteristic datetime( "496957e5-1b18-41e4-9028-800a68a476b4", BLERead |  BLENotify,20,(1==1) );
 
 const char directoryPath2[] PROGMEM = "logFiles";
 char logfilePath2[30];
@@ -22,27 +36,56 @@ char logfilePath2[30];
 //initializing the BLE unit
 void inizializeBLE() 
 {
-    if (!BLE.begin()) 
-    {
-        Serial.println("starting BLE failed!");
-        while (1);
-    }
-    BLE.setLocalName("DiveComputer");
+  if (!BLE.begin()) 
+  {
+      Serial.println("starting BLE failed!");
+      while (1);
+  }
+  BLE.setLocalName("DiveComputer");
     
-    DiveDataService.addCharacteristic(DiveDataCharacteristic);
-    BLE.addService(DiveDataService);
-    BLE.setAdvertisedService(DiveDataService);
-    DiveDataCharacteristic.broadcast();
-    
-    BLE.setConnectionInterval(0xF0, 0x0c80);
-    BLE.advertise();  
-    Serial.println("BLE active"); //uetooth device active, waiting for connections...");
+  DiveData.addCharacteristic(accelerator_x);
+  DiveData.addCharacteristic(accelerator_y);
+  DiveData.addCharacteristic(accelerator_z);
+  DiveData.addCharacteristic(depth);
+  DiveData.addCharacteristic(duration);
+  DiveData.addCharacteristic(gyroscope_x);
+  DiveData.addCharacteristic(gyroscope_y);
+  DiveData.addCharacteristic(gyroscope_z);
+  DiveData.addCharacteristic(heart_freq);
+  DiveData.addCharacteristic(heart_var);
+  DiveData.addCharacteristic(luminance);
+  DiveData.addCharacteristic(oxygen_saturation);
+  DiveData.addCharacteristic(ref_dive);
+  DiveData.addCharacteristic(water_temp);
+  DiveData.addCharacteristic(ack);
+  DiveData.addCharacteristic(datetime);
+
+  BLE.addService(DiveData);
+  BLE.setAdvertisedService(DiveData);
+
+  accelerator_x.broadcast();
+  accelerator_y.broadcast();
+  accelerator_z.broadcast();
+  depth.broadcast();
+  duration.broadcast();
+  gyroscope_x.broadcast();
+  gyroscope_y.broadcast();
+  gyroscope_z.broadcast();
+  heart_freq.broadcast();
+  heart_var.broadcast();
+  luminance.broadcast();
+  oxygen_saturation.broadcast();
+  ref_dive.broadcast();
+  water_temp.broadcast();
+  datetime.broadcast();
+
+  BLE.advertise();
+  Serial.println("Bluetooth device active, waiting for connections..."); //uetooth device active, waiting for connections...");
 }
 
 //this function did cost a LOT of time and nerves (traditionally)
 bool getFirstLineAndDelete(char filename[], char* result)
 {
-    Serial.println(filename);
     File file = SD.open(filename, FILE_WRITE_TRAD);
     if(file) 
     {
@@ -76,208 +119,147 @@ void addBracketsToDate(char* result, int resultSize, const char* b1, char date[]
     snprintf(result, resultSize, "%s%s%s", b1, date, b2);
 }
 
-void buildBluetoothConnectionTesting() {
+void sendData(float _accelerator_x, float _accelerator_y, float _accelerator_z, float _depth,
+  float _duration, float _gyroscope_x, float _gyroscope_y, float _gyroscope_z, int _heart_freq, 
+  int _heart_var, int _luminance, int _oxygen_saturation, int _ref_dive, float _water_temp) {
 
-  BLEDevice central = BLE.central();
-  float _accelerator_x = 0.04f;
-  float _accelerator_y = 0.02f;
-  float _accelerator_z = 100.83f;
-  float _depth = 34.92f;
-  float _duration = 232023.f;
-  float _gyroscope_x = 0.324f;
-  float _gyroscope_y = 0.367f;
-  float _gyroscope_z = 0.546f;
-  int _heart_freq = 1;
-  int _heart_var = 80;
-  int _luminance = 120;
-  int _oxygen_saturation = 98;
-  int _ref_dive = 1;
-  float _water_temp = 23.75;
-
-  if(central) {
-    Serial.print("Connected to central: ");
-    Serial.println(central.address());
-    
-    while(central.connected()) {
-      
-      char json[500] = "";
-      for (size_t u = 0; u < 3; u++)
-      { 
-        _ref_dive++;
-        _heart_freq++;
-             
-        char jsonPart[20];              
-        snprintf(jsonPart, 20, "{\"1\":%.4f", _accelerator_x);
-        strcat(json, jsonPart);      
-        snprintf(jsonPart, 20, ",\"2\":%.4f", _accelerator_y);
-        strcat(json, jsonPart);      
-        snprintf(jsonPart, 20, ",\"3\":%.4f", _accelerator_z);
-        strcat(json, jsonPart);      
-        snprintf(jsonPart, 20, ",\"4\":%.4f", _depth);
-        strcat(json, jsonPart);      
-        snprintf(jsonPart, 20, ",\"5\":%.4f", _duration);
-        strcat(json, jsonPart);      
-        snprintf(jsonPart, 20, ",\"6\":%.4f", _gyroscope_x);
-        strcat(json, jsonPart);      
-        snprintf(jsonPart, 20, ",\"7\":%.4f", _gyroscope_y);
-        strcat(json, jsonPart);      
-        snprintf(jsonPart, 20, ",\"8\":%.4f", _gyroscope_z);
-        strcat(json, jsonPart);      
-        snprintf(jsonPart, 20, ",\"9\":%d", _heart_freq);
-        strcat(json, jsonPart);      
-        snprintf(jsonPart, 20, ",\"10\":%d", _heart_var);
-        strcat(json, jsonPart);      
-        snprintf(jsonPart, 20, ",\"11\":%d", _luminance);
-        strcat(json, jsonPart);      
-        snprintf(jsonPart, 20, ",\"12\":%d", _oxygen_saturation);        
-        strcat(json, jsonPart);      
-        snprintf(jsonPart, 20, ",\"13\":%d", _ref_dive);
-        strcat(json, jsonPart);
-        snprintf(jsonPart, 20, ",\"14\":%.4f", _water_temp);
-        strcat(json, jsonPart);    
-        strcat(json, "}");
-      }
-      
-      DiveDataCharacteristic.writeValue(json);
-      //
-		  //getJson(json, _accelerator_x, _accelerator_y, _accelerator_z, _depth, _duration, _gyroscope_x, _gyroscope_y, _gyroscope_z, _heart_freq, _heart_var, _luminance, _oxygen_saturation, _ref_dive, _water_temp);
-		  Serial.print("json in ble: ");
-      Serial.println(json);
-      delay(200);
-    }
-    central.disconnect();
-  }
-  Serial.print("Disconnected from central: ");
-  Serial.println(central.address());
+	accelerator_x.writeValue(_accelerator_x);
+  delay(10);
+	accelerator_y.writeValue(_accelerator_y);
+  delay(10);
+	accelerator_z.writeValue(_accelerator_z);
+  delay(10);
+	depth.writeValue(_depth);
+  delay(10);
+	duration.writeValue(_duration);
+  delay(10);
+	gyroscope_x.writeValue(_gyroscope_x);
+  delay(10);
+	gyroscope_y.writeValue(_gyroscope_y);
+	gyroscope_z.writeValue(_gyroscope_z);
+	heart_freq.writeValue(_heart_freq);
+	heart_var.writeValue(_heart_var);
+	luminance.writeValue(_luminance);
+	oxygen_saturation.writeValue(_oxygen_saturation);
+	ref_dive.writeValue(_ref_dive);
+	water_temp.writeValue(_water_temp);
 }
 
-void bluetoothTraditionell()
+void buildBluetoothConnection()
 {
   BLEDevice central = BLE.central();  
+  DynamicJsonDocument jDocument(256);
 
-  if(central) {
-    Serial.print("Connected to central: ");
-    Serial.println(central.address());
-    
-    while(central.connected()) {
-      
-      char json[500] = "";
-      char path[] = "logfiles/45_03_21.log";
-      char jsonPart[190]  = "";
+  bool ready = false;
+  char dateString[25];
+  char timeString[25];
+  char terminate[] = "{\"Terminate\":0}";
 
-      //snprintf(path, 30, "logfiles/45_03_21.log");
-
-      File mFile = SD.open(path);
-      Serial.println("ja");
-      if (mFile)
-      {
-        Serial.println("nein");
-        while (mFile.available())
-        {
-          for (size_t u = 0; u < 3; u++)
-          { 
-            mFile.readStringUntil('\n').toCharArray(jsonPart, 160);
-            Serial.println(jsonPart);
-            delay(100);
-            strcat(json, jsonPart);          
-          }
-          DiveDataCharacteristic.writeValue(json);
-          Serial.print("json in ble: ");
-          Serial.println(json);
-          delay(200);
-        }
-      }
-    }
-    central.disconnect();
-  }
-  Serial.print("Disconnected from central: ");
-  Serial.println(central.address());
-}
-
-void buildBluetoothConnection() 
-{
-  BLEDevice central = BLE.central();  
-  
   if (central) 
   {
     Serial.print("Connected to central: ");
-    Serial.println(central.address());
+    Serial.println(central.address());    
+
     char date[10];
-    bool fileAvailable;
-    
-    int count = 0;
-    while(central.connected())
-    { 
-      count++;
+    bool fileAvailable = true;
+    bool finish = false;
+    bool newSession = true;
 
-      fileAvailable = getFirstLineAndDelete("Sessions.log", date);
-      Serial.print("Das ist log: ");
-      Serial.println(date);
+    File file;
+
+    int i = 0;
+    while (central.connected()) {
       
-      if(true) 
+      //DynamicJsonDocument doc = createJson(1, 1.34F, 2.32F, 120, 5, 95, 16.74F, 3, 1.34F, 4.12F, 3.23F, 4.45F, 4.34F, 4.23F);
+      //String output;
+      //serializeJson(doc, output);            
+      if(ack.written())
       {
-        char dateString[12];
-        addBracketsToDate(dateString, sizeof dateString, openingBracket, date, closingBracket);
-        DiveDataCharacteristic.writeValue(dateString);
-        
-        Serial.print("Aktueller dateString: ");
-        Serial.println(dateString);
-        
-        //snprintf(logfilePath2, 30, "logfiles/%s.log", date);
-        
-        snprintf(logfilePath2, 25, "logfiles/%s.log", date);
-        char testPath[] = "logfiles/44_03_21.log";
-
-        Serial.print("Aktueller logpath: ");
-        Serial.println(logfilePath2);      
-
-        File file = SD.open(testPath);
-
-        if(file) 
+        Serial.println("has been written");
+        ready = true;
+        fileAvailable = false;
+        if(newSession)
         {
-          Serial.println("file traditionell geöffnet");
-          int i = 0;
-          char data[512] PROGMEM;
-          char tmp[170] PROGMEM;
-          while (file.available()) 
+          fileAvailable = getFirstLineAndDelete("sessions.log", date);
+          if(fileAvailable)
           {
-            if(i % 3 == 0)
-            {
-              file.readStringUntil('\n').toCharArray(data, 512);
-              // Serial.print("modulo 3 = 0: ");
-              // Serial.println(data);
-            } 
-            else if(i % 3 == 1)
-            {
-              file.readStringUntil('\n').toCharArray(tmp, 170);
-              strcat(data, tmp);
-              //snprintf(data, 420, tmp);
-              memset(tmp, 0, 170);
-              // Serial.print("modulo 3 = 1 ");
-              // Serial.println(data);
-            }
-            else if(i % 3 == 2)
-            {
-              file.readStringUntil('\n').toCharArray(tmp,170);
-              strcat(data, tmp);
-              //snprintf(data, 512, tmp);              
-              Serial.println("sending: ");
-              DiveDataCharacteristic.writeValue(data);
-              memset(data, 0, 512);
-            }
-            i++;
+            snprintf(logfilePath2, 25, "logfiles/%s.log", date);
+            snprintf(dateString, sizeof dateString, "{\"Date\":%s}", date);
+            datetime.writeValue(dateString);
+            ready = false;
+            newSession = false;
+            Serial.println(logfilePath2);
           }
         }
+
+        delay(200);
+        if (finish)
+        {
+          central.disconnect();
+        }        
       }
-      else 
+
+      if (!fileAvailable)
+      {        
+        datetime.writeValue(terminate);
+        Serial.println("finish");
+        ack.writeValue(1);    
+        finish = true;  
+        delay(500);  
+      }      
+      else if (ready)
       {
-        //central.disconnect();     
+        // auslesen aus der datei 
+        // erkennen um was für ein json es sich handelt
+        // umwandeln von json in einzelne werte
+
+        file = SD.open(logfilePath2);
+        if(file)
+        {
+          char data[200];
+          
+          while(file.available())
+          {
+            file.readStringUntil('\n').toCharArray(data,200);
+
+            if(data[0] == '#')
+            {
+              // # entfernen
+              snprintf(timeString, sizeof timeString, "{\"Time\":%s}", data);
+              datetime.writeValue(timeString);
+              while(central.connected() && !ack.written()){}
+            }
+            else
+            {
+              deserializeJson(jDocument, data);
+              accelerator_x.writeValue(jDocument["1"]);
+              delay(10);
+              accelerator_y.writeValue(jDocument["2"]);
+              delay(10);
+              accelerator_z.writeValue(jDocument["3"]);
+              delay(10);
+              depth.writeValue(jDocument["4"]);
+              delay(10);
+              duration.writeValue(jDocument["5"]);
+              delay(10);
+              gyroscope_x.writeValue(jDocument["6"]);
+              delay(10);
+              gyroscope_y.writeValue(jDocument["7"]);
+              gyroscope_z.writeValue(jDocument["8"]);
+              heart_freq.writeValue(jDocument["9"]);
+              heart_var.writeValue(jDocument["10"]);
+              luminance.writeValue(jDocument["11"]);
+              oxygen_saturation.writeValue(jDocument["12"]);
+              ref_dive.writeValue(jDocument["13"]);
+              water_temp.writeValue(jDocument["14"]);
+            }
+          }
+          datetime.writeValue("{\"EoS\":1}");
+          newSession = true;
+        }
       }
-      delay(666);
-    }
-    //central.disconnect();
-  }
-  
+    }    
+  }  
   Serial.print("Disconnected from central: ");
   Serial.println(central.address());
 }

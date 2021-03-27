@@ -96,8 +96,8 @@ void btnBluetoothClickListener()
 void setup() 
 { 
     delay(1000); 
-    Serial.begin(9600);
-    //Serial.flush();
+    Serial.begin(1200);
+    Serial.flush();
     Wire.begin();
     btnDive.setDebounceTime(5);
     btnBluetooth.setDebounceTime(20);
@@ -111,21 +111,10 @@ void setup()
     Serial.println("beginn testing");
     
     /*
-    File file2 = SD.open("sessions.log");    
-    if (file2)
-    {
-        char x[10];
-        while(file2.available())
-        {
-            file2.readStringUntil('\n').toCharArray(x, 10);
-            Serial.println(x);
-        }
-    }
-    file2.close();
+    
     
     
     //logPath = String("") + directoryPath + "/" + date + ".log";
-    //snprintf(logPath, 30, "logfiles/%s.log", date);
     // Serial.println(logPath);
 
 
@@ -141,6 +130,27 @@ void setup()
     Serial.print("is unequal: ");
     Serial.println(strcmp(ch3,ch4));
     */
+    snprintf(logPath, 30, "logfiles/%s.log", date);
+
+    /*
+    if(SD.exists("sessions.log"))
+    {
+        SD.remove("sessions.log");
+    }
+    File file2 = SD.open("sessions.log", FILE_WRITE);    
+    if (file2)
+    {
+        file2.println("23_23_23");
+        file2.println("24_24_24");
+    }
+    file2.close();
+
+    char testdate[10];
+    bool av = getFirstLineAndDelete("sessions.log", testdate);
+    Serial.println(av);
+    Serial.println(testdate);
+    */
+
 }
 
 void loop() 
@@ -150,8 +160,8 @@ void loop()
 
   if (loopStateBluetooth == LOOP_STATE_STARTED) 
   {
-      //buildBluetoothConnection();  
-      bluetoothTraditionell();
+      buildBluetoothConnection();  
+      //buildBluetoothConnectionTesting();
       delay(200);
   } 
   else if (loopStateDive == LOOP_STATE_STARTED) 

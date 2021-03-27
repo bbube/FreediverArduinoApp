@@ -4,7 +4,7 @@
 void createJsonString(int diveID, float duration, int heartrate, int oxygen, int confidence, float depth, int brightness, float waterTemperature,
  float accX, float accY, float accZ, float gyrX, float gyrY, float gyrZ, char* jsonString)
 {
-	DynamicJsonDocument obj(1024);
+	DynamicJsonDocument obj(256);
 	obj["1"] = accX;
 	obj["2"] = accY;
 	obj["3"] = accZ;

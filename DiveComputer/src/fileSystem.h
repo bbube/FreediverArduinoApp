@@ -5,8 +5,6 @@
 #include <fstream>
 
 #define dateLength 10
-
-
 using namespace std;
 
 bool sameSession = false;
@@ -20,7 +18,7 @@ char logPath[25] PROGMEM;
 
 int diveID = 1;
 
-//writes the value of variable date into the date-file
+//writes the value of variable date in "date.log"
 void setDateToFile(char d[]) 
 {
     File file = SD.open(datePath, FILE_WRITE);
@@ -31,8 +29,9 @@ void setDateToFile(char d[])
     }
 }
 
-//returns the date from the date-file
-//returns empty string if failed to open the file
+// reades the date from "date.log" and writes it
+// in the character-array which is referenced in
+// the parameter
 void getDateFromFile(char* result) 
 {
     File file = SD.open(datePath);
@@ -44,8 +43,8 @@ void getDateFromFile(char* result)
     }
 }
 
-//returns the diveID from the diveID-file
-//returns -1 if failed to open the file
+// returns the diveID from "dive.log"
+// returns -1 if failed to open the file
 int getDiveID() 
 {
     File file = SD.open(divePath);
@@ -59,7 +58,7 @@ int getDiveID()
     return -1;
 }
 
-//writes the value of variable diveID into the diveID-file
+// writes the value of variable diveID in "dive.log"
 void setDiveID() 
 {
     if(SD.exists(divePath))
@@ -74,6 +73,7 @@ void setDiveID()
     }
 }
 
+// writes a date in "sessions.log"
 void writeDateToSessionFile(char* date) 
 {
     File file = SD.open(sessionsPath, FILE_WRITE);    
@@ -84,25 +84,24 @@ void writeDateToSessionFile(char* date)
     }
 }
 
-//has to be implemented with the real-time-clock when built in
+// has to be implemented with the real-time-clock when built in
+// get date from the real-time-clock and write value into date-variable
 void setDate() 
 {	
     //char out[20];
     //snprintf(out, sizeof out, "%id", millis());
     //strncpy ( date, out, 6);
     
-    char currDate[] = "45_03_21";
+    char currDate[] = "62_03_21";
     snprintf(date, sizeof date, "%s", currDate);
 }
 
-//-------META files--------
-//sets the date; checks if the meta-files "dive.log" and "date.log"
-//exist and creates them if not; if yes the variables "diveID" and
-//"date" are set
+// -------META files--------
+// sets the date; checks if the meta-files "dive.log" and "date.log"
+// exist and creates them if not; if yes the variables "diveID" and
+// "date" are set
 void initializeMetaData() 
 {
-    //just to imitate a date, has to be removed
-    //while(millis() < 3701)
     setDate();
     char oldDate[dateLength];
     
@@ -113,7 +112,6 @@ void initializeMetaData()
         {
             SD.remove(datePath);
             setDateToFile(date);
-            //writeDateToSessionFile();
         } 
         else 
         {
@@ -123,7 +121,6 @@ void initializeMetaData()
     else 
     {
         setDateToFile(date);
-        //writeDateToSessionFile();
     }
     
     if(SD.exists(divePath)) 
