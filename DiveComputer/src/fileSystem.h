@@ -92,7 +92,7 @@ void setDate()
     //snprintf(out, sizeof out, "%id", millis());
     //strncpy ( date, out, 6);
     
-    char currDate[] = "62_03_21";
+    char currDate[] = "71_03_21";
     snprintf(date, sizeof date, "%s", currDate);
 }
 

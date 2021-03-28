@@ -63,7 +63,7 @@ void btnDiveClickListener()
             if (!sameSession) 
             {
               writeDateToSessionFile(date);
-              Serial.println("bin traditionell drinne in der olga");
+              Serial.println("sd card crashed");
               sameSession = true;
             }
             insertSpacer();
@@ -132,7 +132,7 @@ void setup()
     */
     snprintf(logPath, 30, "logfiles/%s.log", date);
 
-    /*
+    
     if(SD.exists("sessions.log"))
     {
         SD.remove("sessions.log");
@@ -140,16 +140,12 @@ void setup()
     File file2 = SD.open("sessions.log", FILE_WRITE);    
     if (file2)
     {
-        file2.println("23_23_23");
-        file2.println("24_24_24");
+        file2.println("70_03_21");
+        file2.println("71_03_21");
     }
     file2.close();
-
-    char testdate[10];
-    bool av = getFirstLineAndDelete("sessions.log", testdate);
-    Serial.println(av);
-    Serial.println(testdate);
-    */
+    
+    
 
 }
 

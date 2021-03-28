@@ -177,14 +177,14 @@ void buildBluetoothConnection()
       {
         Serial.println("has been written");
         ready = true;
-        fileAvailable = false;
+        
         if(newSession)
-        {
+        {          
           fileAvailable = getFirstLineAndDelete("sessions.log", date);
           if(fileAvailable)
           {
             snprintf(logfilePath2, 25, "logfiles/%s.log", date);
-            snprintf(dateString, sizeof dateString, "{\"Date\":%s}", date);
+            snprintf(dateString, sizeof dateString, "{\"Date\":\"%s\"}", date);
             datetime.writeValue(dateString);
             ready = false;
             newSession = false;
@@ -225,9 +225,10 @@ void buildBluetoothConnection()
             if(data[0] == '#')
             {
               // # entfernen
-              snprintf(timeString, sizeof timeString, "{\"Time\":%s}", data);
+              snprintf(timeString, sizeof timeString, "{\"Time\":\"%s\"}", data);
               datetime.writeValue(timeString);
               while(central.connected() && !ack.written()){}
+              Serial.println("dive");
             }
             else
             {
@@ -252,10 +253,12 @@ void buildBluetoothConnection()
               oxygen_saturation.writeValue(jDocument["12"]);
               ref_dive.writeValue(jDocument["13"]);
               water_temp.writeValue(jDocument["14"]);
+              Serial.println("measure");
             }
           }
           datetime.writeValue("{\"EoS\":1}");
           newSession = true;
+          ready = false;
         }
       }
     }    
