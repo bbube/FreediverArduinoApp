@@ -47,7 +47,7 @@ void insertSpacer()
     File file = SD.open(logPath, FILE_WRITE);
     if (file) 
     {
-        file.println("#Uhrzeit");
+        file.println("#12:33:24");
     }
     file.close();
 }
@@ -132,19 +132,19 @@ void setup()
     */
     snprintf(logPath, 30, "logfiles/%s.log", date);
 
-    
+    //remove /////////////////////////////////////////////
     if(SD.exists("sessions.log"))
     {
         SD.remove("sessions.log");
     }
     File file2 = SD.open("sessions.log", FILE_WRITE);    
     if (file2)
-    {
-        file2.println("70_03_21");
-        file2.println("71_03_21");
+    {        
+        file2.println("27_03_21");
+        file2.println("29_03_21");
     }
     file2.close();
-    
+    //remove /////////////////////////////////////////////
     
 
 }
