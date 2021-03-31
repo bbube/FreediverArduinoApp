@@ -18,7 +18,7 @@ char logPath[25] PROGMEM;
 
 int diveID = 1;
 
-//writes the value of variable date in "date.log"
+// writes the value of variable date in "date.log"
 void setDateToFile(char d[]) 
 {
     File file = SD.open(datePath, FILE_WRITE);
@@ -84,7 +84,7 @@ void writeDateToSessionFile(char* date)
     }
 }
 
-// has to be implemented with the real-time-clock when built in
+// has to be implemented with the real-time-clock when built in;
 // get date from the real-time-clock and write value into date-variable
 void setDate() 
 {	
@@ -92,14 +92,16 @@ void setDate()
     //snprintf(out, sizeof out, "%id", millis());
     //strncpy ( date, out, 6);
     
-    char currDate[] = "29_03_21";
+    char currDate[] = "31_03_21";
     snprintf(date, sizeof date, "%s", currDate);
 }
 
 // -------META files--------
 // sets the date; checks if the meta-files "dive.log" and "date.log"
 // exist and creates them if not; if yes the variables "diveID" and
-// "date" are set
+// "date" are set; the current date is compared to the date from
+// "date.log" to check if its a new session; if its not a new session 
+// the bool "sameSession" is set to true; 
 void initializeMetaData() 
 {
     setDate();

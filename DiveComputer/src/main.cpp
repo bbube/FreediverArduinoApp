@@ -11,6 +11,8 @@ float gyrX, gyrY, gyrZ;
 
 char jsonString[200];
 
+// Reads data from the sensors and calls the method "createJsonString" with the data as 
+// parameter.
 void getData(char* jsonString) 
 {
     body = bioHub.readBpm();
@@ -23,9 +25,24 @@ void getData(char* jsonString)
     {
         IMU.readGyroscope(gyrX, gyrY, gyrZ);
     }
-    createJsonString(diveID, millis(), body.heartRate, body.oxygen, body.confidence, (random(0, 1000)/10), random(0,255), (random(0,300)/10), accX, accY, accZ, gyrX, gyrY, gyrZ, jsonString);
+    createJsonString(diveID, 
+                     millis(), 
+                     body.heartRate, 
+                     body.oxygen, 
+                     body.confidence, 
+                     (random(0, 1000)/10), 
+                     random(0,255), 
+                     (random(0,300)/10), 
+                     accX, 
+                     accY, 
+                     accZ, 
+                     gyrX, 
+                     gyrY, 
+                     gyrZ, 
+                     jsonString);
 }                         
 
+// This function saves a String (Json-string with our data) in a file on the SD card.
 void logData(char* data) 
 {
     dataFile = SD.open(logPath, FILE_WRITE);
@@ -42,6 +59,7 @@ void logData(char* data)
     }
 }
 
+// This function inserts the start time of a dive into the logfile.
 void insertSpacer() 
 {
     File file = SD.open(logPath, FILE_WRITE);
@@ -52,6 +70,9 @@ void insertSpacer()
     file.close();
 }
 
+// This function is for the "start dive" - button on the test board.
+// If its a new session the date is written to "sessions.log". We do this here
+// so that we only add a session if there is at least one dive.
 void btnDiveClickListener() 
 {
     btnDive.loop(); // must call the loop() function first
@@ -77,6 +98,7 @@ void btnDiveClickListener()
     }
 }
 
+//To activate the bluetooth functionality manually with a button.
 void btnBluetoothClickListener() 
 {
     btnBluetooth.loop(); // must call the loop() function first
@@ -93,6 +115,7 @@ void btnBluetoothClickListener()
     }
 }
 
+//In the setup method everything is initialized.
 void setup() 
 { 
     delay(1000); 
@@ -110,26 +133,6 @@ void setup()
     createDirectory();
     Serial.println("beginn testing");
     
-    /*
-    
-    
-    
-    //logPath = String("") + directoryPath + "/" + date + ".log";
-    // Serial.println(logPath);
-
-
-    char ch1[] = "equal";
-    char ch2[] = "equal";
-
-    Serial.print("is equal: ");
-    Serial.println(strcmp(ch1,ch2));
-
-    char ch3[] = "equal";
-    char ch4[] = "notequal";
-
-    Serial.print("is unequal: ");
-    Serial.println(strcmp(ch3,ch4));
-    */
     snprintf(logPath, 30, "logfiles/%s.log", date);
 
     //remove /////////////////////////////////////////////
@@ -140,14 +143,15 @@ void setup()
     File file2 = SD.open("sessions.log", FILE_WRITE);    
     if (file2)
     {        
-        file2.println("27_03_21");
-        file2.println("29_03_21");
+        //file2.println("27_03_21");        
+        file2.println("31_03_21");
     }
     file2.close();
     //remove /////////////////////////////////////////////
     
 
 }
+
 
 void loop() 
 {

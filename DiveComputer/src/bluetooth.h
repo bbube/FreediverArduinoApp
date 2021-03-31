@@ -217,8 +217,8 @@ void buildBluetoothConnection()
           File file2 = SD.open("sessions.log", FILE_WRITE);    
           if (file2)
           {        
-              file2.println("27_03_21");
-              file2.println("29_03_21");
+              //file2.println("27_03_21");              
+              file2.println("31_03_21");
           }
           file2.close();
           //remove /////////////////////////////////////////////
@@ -228,7 +228,9 @@ void buildBluetoothConnection()
       // if there are no more files to read the divecomputer sends
       // terminator to the android app
       if (!fileAvailable)
-      {        
+      {     
+        delay(5000);   
+        Serial.println("finish");
         datetime.writeValue(terminate);
         Serial.println("finish");
         ack.writeValue(1);    
@@ -261,12 +263,12 @@ void buildBluetoothConnection()
             }
             else
             {
-              deserializeJson(jDocument, data);
-              accelerator_x.writeValue(jDocument["1"]);              
-              accelerator_y.writeValue(jDocument["2"]);              
-              accelerator_z.writeValue(jDocument["3"]);             
-              depth.writeValue(jDocument["4"]);              
-              duration.writeValue(jDocument["5"]);              
+              deserializeJson(jDocument, data);              
+              accelerator_x.writeValue(jDocument["1"]);  
+              accelerator_y.writeValue(jDocument["2"]);                              
+              accelerator_z.writeValue(jDocument["3"]);                             
+              depth.writeValue(jDocument["4"]);                                
+              duration.writeValue(jDocument["5"]);                                
               gyroscope_x.writeValue(jDocument["6"]);              
               gyroscope_y.writeValue(jDocument["7"]);
               gyroscope_z.writeValue(jDocument["8"]);
@@ -276,12 +278,14 @@ void buildBluetoothConnection()
               oxygen_saturation.writeValue(jDocument["12"]);
               ref_dive.writeValue(jDocument["13"]);
               water_temp.writeValue(jDocument["14"]);
-              Serial.println("measure");              
+              Serial.println("measure");   
+              delay(20);           
             }
           }
           datetime.writeValue("{\"EoS\":1}");          
           newSession = true;
           ready = false;
+          delay(200);
         }
       }
     }    
