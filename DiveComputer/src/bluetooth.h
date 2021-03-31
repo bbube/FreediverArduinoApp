@@ -93,7 +93,7 @@ void inizializeBLE()
 // that has not been sent yet. A session that has already been sent is marked
 // by '*' as the first char. If there is a new one it returns true, writes the 
 // name into "result" and marks the line.
-bool getFirstLineAndDelete(char filename[], char* result)
+bool getFirstLine(char filename[], char* result)
 {
     File file = SD.open(filename, FILE_WRITE_TRAD);
     if(file) 
@@ -107,9 +107,7 @@ bool getFirstLineAndDelete(char filename[], char* result)
             if(c[0] != '*') 
             {
                 file.seek(i);
-                file.readStringUntil('\n').toCharArray(result, 9);
-                file.seek(i);
-                file.print('*');
+                file.readStringUntil('\n').toCharArray(result, 9);                
                 file.close();
                 return true;
             } 
@@ -121,6 +119,34 @@ bool getFirstLineAndDelete(char filename[], char* result)
         } 
     }  
     return false;
+} 
+
+// This function marks the first session that hasnt been send 
+// with a '*' 
+void deleteFirstLine(char filename[])
+{
+    File file = SD.open(filename, FILE_WRITE_TRAD);
+    if(file) 
+    {
+        file.seek(0);
+        int i = 0;
+        while (file.available()) 
+        {
+            char c[2];
+            file.read(c, 2);
+            if(c[0] != '*') 
+            {                
+                file.seek(i);
+                file.print('*');
+                file.close();                
+            } 
+            else 
+            {
+                file.readStringUntil('\n');
+            }
+            i+=10;
+        } 
+    }
 } 
 
 void addBracketsToDate(char* result, int resultSize, const char* b1, char date[], const char* b2) 
@@ -170,6 +196,7 @@ void buildBluetoothConnection()
     bool fileAvailable = true;
     bool finish = false;
     bool newSession = true;
+    bool deleteline = false;
 
     File file;    
 
@@ -188,7 +215,7 @@ void buildBluetoothConnection()
         // if there is one it updates the datetime characteristic
         if(newSession)
         {
-          fileAvailable = getFirstLineAndDelete("sessions.log", date);
+          fileAvailable = getFirstLine("sessions.log", date);
           if(fileAvailable)
           {
             snprintf(logfilePath2, 25, "logfiles/%s.log", date);
@@ -198,6 +225,14 @@ void buildBluetoothConnection()
             newSession = false;
             Serial.println(logfilePath2);
           }
+          // After the hole session has been send it gets 
+          // marked in the file
+          if (deleteline)
+          {
+            deleteFirstLine("sessions.log");      
+            deleteline = false;
+          }
+          
         }
 
         delay(100);
@@ -208,20 +243,6 @@ void buildBluetoothConnection()
         if (finish)
         {
           central.disconnect();
-
-          //remove /////////////////////////////////////////////
-          if(SD.exists("sessions.log"))
-          {
-              SD.remove("sessions.log");
-          }
-          File file2 = SD.open("sessions.log", FILE_WRITE);    
-          if (file2)
-          {        
-              //file2.println("27_03_21");              
-              file2.println("31_03_21");
-          }
-          file2.close();
-          //remove /////////////////////////////////////////////
         }        
       }
       
@@ -281,8 +302,9 @@ void buildBluetoothConnection()
               Serial.println("measure");   
               delay(20);           
             }
-          }
-          datetime.writeValue("{\"EoS\":1}");          
+          }          
+          datetime.writeValue("{\"EoS\":1}");
+          deleteline = true;
           newSession = true;
           ready = false;
           delay(200);
