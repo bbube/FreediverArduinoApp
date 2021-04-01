@@ -16,7 +16,7 @@ BLEFloatCharacteristic accelerator_x("094a4ab5-d789-477e-8b3a-fd5fee1971f9", BLE
 BLEFloatCharacteristic accelerator_y("63e30608-53f1-48fb-a7f1-8363ed609a39", BLERead | BLENotify);
 BLEFloatCharacteristic accelerator_z("82dea7b6-2091-4a8a-a788-fcaf0fba84e4", BLERead | BLENotify);
 BLEFloatCharacteristic depth("70b263a4-faa9-4940-96a6-ce481cfd5803", BLERead | BLENotify);
-BLEFloatCharacteristic duration("21980bb5-887a-4a8f-9598-51bb19b41068", BLERead | BLENotify);
+BLELongCharacteristic duration("21980bb5-887a-4a8f-9598-51bb19b41068", BLERead | BLENotify);
 BLEFloatCharacteristic gyroscope_x("b6cf7ab8-525d-4e27-86e9-c4e7fe32223c", BLERead | BLENotify);
 BLEFloatCharacteristic gyroscope_y("c4fa00ce-5af9-40b7-b960-1658a8074320", BLERead | BLENotify);
 BLEFloatCharacteristic gyroscope_z("5475ba53-bcbd-43de-b410-c06ed3a50142", BLERead | BLENotify);
@@ -215,6 +215,15 @@ void buildBluetoothConnection()
         // if there is one it updates the datetime characteristic
         if(newSession)
         {
+          // After the hole session has been send it gets 
+          // marked in the file
+          if (deleteline)
+          {            
+            Serial.println("delete line");
+            deleteFirstLine("sessions.log");      
+            deleteline = false;
+          }
+
           fileAvailable = getFirstLine("sessions.log", date);
           if(fileAvailable)
           {
@@ -225,14 +234,6 @@ void buildBluetoothConnection()
             newSession = false;
             Serial.println(logfilePath2);
           }
-          // After the hole session has been send it gets 
-          // marked in the file
-          if (deleteline)
-          {
-            deleteFirstLine("sessions.log");      
-            deleteline = false;
-          }
-          
         }
 
         delay(100);
@@ -249,9 +250,7 @@ void buildBluetoothConnection()
       // if there are no more files to read the divecomputer sends
       // terminator to the android app
       if (!fileAvailable)
-      {     
-        delay(5000);   
-        Serial.println("finish");
+      {
         datetime.writeValue(terminate);
         Serial.println("finish");
         ack.writeValue(1);    
@@ -303,11 +302,11 @@ void buildBluetoothConnection()
               delay(20);           
             }
           }          
-          datetime.writeValue("{\"EoS\":1}");
+          datetime.writeValue("{\"EoS\":1}");          
           deleteline = true;
           newSession = true;
           ready = false;
-          delay(200);
+          delay(100);
         }
       }
     }    

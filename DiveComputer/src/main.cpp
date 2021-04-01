@@ -14,9 +14,8 @@ char jsonString[200];
 // Reads data from the sensors and calls the method "createJsonString" with the data as 
 // parameter.
 void getData(char* jsonString) 
-{
+{  
     body = bioHub.readBpm();
-     
     if (IMU.accelerationAvailable()) 
     {
         IMU.readAcceleration(accX, accY, accZ);
@@ -25,21 +24,23 @@ void getData(char* jsonString)
     {
         IMU.readGyroscope(gyrX, gyrY, gyrZ);
     }
-    createJsonString(diveID, 
-                     millis(), 
-                     body.heartRate, 
-                     body.oxygen, 
-                     body.confidence, 
-                     (random(0, 1000)/10), 
-                     random(0,255), 
-                     (random(0,300)/10), 
-                     accX, 
-                     accY, 
-                     accZ, 
-                     gyrX, 
-                     gyrY, 
-                     gyrZ, 
-                     jsonString);
+    createJsonString(
+                    accX, 
+                    accY, 
+                    accZ,
+                    (float)random(0, 50),
+                    millis(),
+                    gyrX, 
+                    gyrY, 
+                    gyrZ,
+                    body.heartRate, 
+                    body.confidence, 
+                    random(0,255), 
+                    body.oxygen, 
+                    diveID,
+                    (float)random(0,30),                     
+                    jsonString);
+    Serial.println(body.heartRate);
 }                         
 
 // This function saves a String (Json-string with our data) in a file on the SD card.
@@ -142,31 +143,29 @@ void setup()
     }
     File file2 = SD.open("sessions.log", FILE_WRITE);    
     if (file2)
-    {        
-        //file2.println("27_03_21");        
-        file2.println("31_03_21");
+    {
+        file2.println("01_04_21");        
     }
     file2.close();
     //remove /////////////////////////////////////////////
     
-
 }
 
 
 void loop() 
 {
-  btnDiveClickListener();
-  btnBluetoothClickListener();
-
-  if (loopStateBluetooth == LOOP_STATE_STARTED) 
-  {
-      buildBluetoothConnection();  
-      //buildBluetoothConnectionTesting();
-      delay(200);
-  } 
-  else if (loopStateDive == LOOP_STATE_STARTED) 
-  {
-	  getData(jsonString);
-	  logData(jsonString);
-  }
+    btnDiveClickListener();
+    btnBluetoothClickListener();
+    
+    if (loopStateBluetooth == LOOP_STATE_STARTED) 
+    {
+        buildBluetoothConnection();  
+        //buildBluetoothConnectionTesting();
+        delay(200);
+    } 
+    else if (loopStateDive == LOOP_STATE_STARTED) 
+    {      
+        getData(jsonString);      
+        logData(jsonString);
+    }
 }

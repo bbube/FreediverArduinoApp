@@ -1,8 +1,8 @@
 #include <ArduinoJson.h>
 
 //returns a Json String with values: diveID, time, heartrate, oxygen, confidence, depth, brightness, temperature, accX, accY, accZ, gyrX, gyrY, gyrZ
-void createJsonString(int diveID, float duration, int heartrate, int oxygen, int confidence, float depth, int brightness, float waterTemperature,
- float accX, float accY, float accZ, float gyrX, float gyrY, float gyrZ, char* jsonString)
+void createJsonString(float accX, float accY, float accZ, float depth, long duration, float gyrX, float gyrY, float gyrZ, int heartrate, int confidence,
+ 						int brightness, int oxygen, int diveID, float waterTemperature, char* jsonString)
 {
 	DynamicJsonDocument obj(256);
 	obj["1"] = accX;

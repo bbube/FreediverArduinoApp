@@ -43,7 +43,7 @@ void initializeBioHubSensor()
       Serial.println("Error configuring sensor.");
       Serial.print("Error: "); 
       Serial.println(error); 
-    }
+    }    
 }
 
 //-------IMU--------
